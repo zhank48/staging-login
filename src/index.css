@@ -1,0 +1,301 @@
+:root {
+  /* Cinematic Theme Colors */
+  --c-text-main: #FFFFFF;
+  --c-text-muted: rgba(255, 255, 255, 0.7);
+  --c-glass-bg: rgba(255, 255, 255, 0.1);
+  --c-glass-border: rgba(255, 255, 255, 0.2);
+  --c-glass-hover: rgba(255, 255, 255, 0.15);
+  
+  --c-accent: #FFFFFF;
+  --c-accent-hover: rgba(255, 255, 255, 0.8);
+  --c-on-accent: #000000;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--c-text-main);
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  background-color: #0b0205;
+  /* Cinematic Red Landscape Placeholder Gradient */
+  background-image: 
+    radial-gradient(circle at 50% 40%, rgba(255, 200, 150, 0.2) 0%, transparent 40%),
+    linear-gradient(to bottom, #1a050a 0%, #4a0d15 40%, #8b1820 60%, #1a050a 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Typography Helpers */
+.title-hero {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.subtitle-hero {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  font-weight: 400;
+  color: var(--c-text-muted);
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto 2.5rem auto;
+  line-height: 1.65;
+}
+
+.label-caps {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+.body-medium {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--c-text-muted);
+}
+
+/* App Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Clean Navbar */
+.app-header {
+  padding: 1.5rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.logo-icon {
+  color: var(--c-text-main);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 2rem 2rem;
+  flex-direction: column;
+}
+
+.app-footer {
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Profile Card - Solid surface, not glass. R-10: glass is reserved for 1-2 elements only */
+.profile-card {
+  background-color: #1a1a1d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 1.75rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  border: none;
+}
+
+/* Primary CTA — the ONE element that may use glass (R-10) */
+.btn-primary {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--c-text-main);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Solid logout button — no glass */
+.btn-logout {
+  background-color: transparent;
+  color: var(--c-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+}
+
+.btn-logout:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--c-text-main);
+}
+
+/* Profile Section */
+.profile-header {
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--c-text-main);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-header-text {
+  flex: 1;
+}
+
+.profile-header-text h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.profile-details {
+  padding: 0.5rem 0;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 2rem;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item-icon {
+  color: rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.list-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.list-item-label {
+  color: var(--c-text-main);
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+
+.list-item-supporting {
+  color: var(--c-text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.profile-actions {
+  padding: 1.25rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* States */
+.loading-state, .error-state {
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.spinner {
+  color: var(--c-accent);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.error-box {
+  background: var(--c-glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  padding: 2rem;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 500px;
+}
+
+.error-icon {
+  color: #ff6b6b;
+  margin: 0 auto 1rem auto;
+}
+

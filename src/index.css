@@ -1,301 +1,245 @@
+/*
+  Design read: SSO test tool for developers, bold and colorful.
+  Dials: ENERGY 2 / RHYTHM 1 / MOTION 1.
+  - The page background IS the test result: saffron = waiting (checking / signed out),
+    mint = signed in, tomato = error. One field color per screen, readable at a glance.
+  - Panel: cream card with a thick border and a hard offset shadow, the only elevated element,
+    so it reads as the one thing to act on above the colored field.
+  - Type: Bricolage Grotesque for the big status word only (chunky optical size carries the
+    state from across the room); system-ui for prose, ui-monospace for machine strings.
+  - Motion: background color eases between states so the change of result is noticed.
+  - Theme follows the OS (prefers-color-scheme); dark keeps the same hues, deepened.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap');
+
 :root {
-  /* Cinematic Theme Colors */
-  --c-text-main: #FFFFFF;
-  --c-text-muted: rgba(255, 255, 255, 0.7);
-  --c-glass-bg: rgba(255, 255, 255, 0.1);
-  --c-glass-border: rgba(255, 255, 255, 0.2);
-  --c-glass-hover: rgba(255, 255, 255, 0.15);
-  
-  --c-accent: #FFFFFF;
-  --c-accent-hover: rgba(255, 255, 255, 0.8);
-  --c-on-accent: #000000;
+  --ink: #1c1b19;
+  --ink-muted: #55524b;
+  --surface: #fffaf0;
+  --line: #e3dccb;
+  --code-bg: #f3ecdc;
+  --error: #b3261e;
+  --error-bg: #fdeae6;
+  --radius: 10px;
+  --mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* state fields: background + text on it */
+  --waiting: #f4b942;
+  --ok: #3ccf9e;
+  --bad: #f07a5c;
+  --on-field: #1c1b19;
+  color-scheme: light dark;
 }
 
-* {
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #f2ede2;
+    --ink-muted: #b3ad9f;
+    --surface: #1f1d19;
+    --line: #3a362e;
+    --code-bg: #2c2923;
+    --error: #ff9b86;
+    --error-bg: #3a1c16;
+
+    --waiting: #3d2f0d;
+    --ok: #0e3a2d;
+    --bad: #45190f;
+  }
+  .page[data-state='waiting'] { --on-field: #f7c65a; }
+  .page[data-state='ok']      { --on-field: #6ee6bb; }
+  .page[data-state='error']   { --on-field: #ff9b86; }
+}
+
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
-  padding: 0;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: var(--c-text-main);
-  min-height: 100vh;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--waiting);
+  color: var(--ink);
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  background-color: #0b0205;
-  /* Cinematic Red Landscape Placeholder Gradient */
-  background-image: 
-    radial-gradient(circle at 50% 40%, rgba(255, 200, 150, 0.2) 0%, transparent 40%),
-    linear-gradient(to bottom, #1a050a 0%, #4a0d15 40%, #8b1820 60%, #1a050a 100%);
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
 }
 
-/* Typography Helpers */
-.title-hero {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  text-align: center;
-  margin-bottom: 1rem;
+:focus-visible {
+  outline: 3px solid var(--on-field);
+  outline-offset: 3px;
 }
 
-.subtitle-hero {
-  font-size: clamp(1rem, 2vw, 1.125rem);
-  font-weight: 400;
-  color: var(--c-text-muted);
-  text-align: center;
-  max-width: 520px;
-  margin: 0 auto 2.5rem auto;
-  line-height: 1.65;
-}
-
-.label-caps {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--c-text-muted);
-}
-
-.body-medium {
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: var(--c-text-muted);
-}
-
-/* App Layout */
-.app-container {
-  display: flex;
-  flex-direction: column;
+.page {
+  --field: var(--waiting);
   min-height: 100vh;
+  background: var(--field);
+  color: var(--on-field);
+  transition: background-color 0.4s ease;
+}
+.page[data-state='ok']    { --field: var(--ok); }
+.page[data-state='error'] { --field: var(--bad); }
+
+@media (prefers-reduced-motion: reduce) {
+  .page { transition: none; }
 }
 
-/* Clean Navbar */
 .app-header {
-  padding: 1.5rem 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-}
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.02em;
-}
-
-.logo-icon {
-  color: var(--c-text-main);
+  padding: 1rem;
+  font-weight: 600;
 }
 
 .app-main {
-  flex: 1;
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.state-word {
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.75rem, 12vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  overflow-wrap: anywhere;
+}
+
+.panel {
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--on-field);
+  border-radius: var(--radius);
+  box-shadow: 6px 6px 0 var(--on-field);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panel h2 {
+  font-size: 1.375rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.panel p {
+  color: var(--ink-muted);
+}
+
+code, pre, dd {
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
+
+code {
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+.panel .error-message {
+  color: var(--error);
+  background: var(--error-bg);
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+/* Key/value rows: config and token claims */
+.kv {
+  border-top: 1px solid var(--line);
+}
+
+.kv > div {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.kv dt {
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+}
+
+.kv dd {
+  overflow-wrap: anywhere;
+}
+
+.missing {
+  color: var(--ink-muted);
+  font-style: italic;
+  font-family: system-ui, sans-serif;
+}
+
+@media (max-width: 30rem) {
+  .kv > div {
+    grid-template-columns: 1fr;
+    gap: 0.125rem;
+  }
+  .panel {
+    box-shadow: 4px 4px 0 var(--on-field);
+  }
+}
+
+details summary {
+  cursor: pointer;
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 6rem 2rem 2rem 2rem;
-  flex-direction: column;
 }
 
-.app-footer {
-  padding: 2rem;
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--c-text-muted);
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+pre {
+  background: var(--code-bg);
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  max-height: 20rem;
 }
 
-/* Profile Card - Solid surface, not glass. R-10: glass is reserved for 1-2 elements only */
-.profile-card {
-  background-color: #1a1a1d;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+progress {
   width: 100%;
-  max-width: 460px;
-  overflow: hidden;
+  accent-color: var(--ink);
 }
 
-/* Buttons */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  height: 44px;
-  padding: 0 1.75rem;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 1.25rem;
   border-radius: 8px;
-  font-family: inherit;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
   font-weight: 600;
-  font-size: 0.875rem;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
-  border: none;
+  transition: transform 0.1s ease;
 }
 
-/* Primary CTA — the ONE element that may use glass (R-10) */
+.btn:hover {
+  background: var(--code-bg);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+}
+
 .btn-primary {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--c-text-main);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 8px;
+  background: var(--ink);
+  color: var(--surface);
 }
 
 .btn-primary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--ink) 85%, var(--surface));
 }
 
-/* Solid logout button — no glass */
-.btn-logout {
-  background-color: transparent;
-  color: var(--c-text-muted);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
+/* focus ring inside the panel sits on cream, so use ink there */
+.panel :focus-visible {
+  outline-color: var(--ink);
 }
-
-.btn-logout:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: var(--c-text-main);
-}
-
-/* Profile Section */
-.profile-header {
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.avatar {
-  width: 56px;
-  height: 56px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--c-text-main);
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.profile-header-text {
-  flex: 1;
-}
-
-.profile-header-text h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.2rem;
-}
-
-.profile-details {
-  padding: 0.5rem 0;
-}
-
-.list-item {
-  display: flex;
-  align-items: center;
-  padding: 0.875rem 2rem;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.list-item:last-child {
-  border-bottom: none;
-}
-
-.list-item-icon {
-  color: rgba(255, 255, 255, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.list-item-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.list-item-label {
-  color: var(--c-text-main);
-  font-size: 0.9375rem;
-  font-weight: 400;
-}
-
-.list-item-supporting {
-  color: var(--c-text-muted);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.profile-actions {
-  padding: 1.25rem 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* States */
-.loading-state, .error-state {
-  align-items: center;
-  justify-content: center;
-}
-
-.loader-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 2rem;
-}
-
-.spinner {
-  color: var(--c-accent);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.error-box {
-  background: var(--c-glass-bg);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 100, 100, 0.3);
-  padding: 2rem;
-  border-radius: 24px;
-  text-align: center;
-  max-width: 500px;
-}
-
-.error-icon {
-  color: #ff6b6b;
-  margin: 0 auto 1rem auto;
-}
-

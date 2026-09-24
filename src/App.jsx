@@ -1,8 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import keycloak from './keycloak';
 import UserProfile from './components/UserProfile';
-import './index.css';
+
+const env = import.meta.env;
+const config = [
+  ['Server', env.VITE_KEYCLOAK_URL],
+  ['Realm', env.VITE_KEYCLOAK_REALM],
+  ['Client ID', env.VITE_KEYCLOAK_CLIENT_ID],
+];
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -25,74 +30,72 @@ function App() {
     })
     .catch((err) => {
       console.error('Keycloak initialization error', err);
-      setError('Failed to initialize Keycloak. Please check your configuration.');
+      setError(err?.message || 'Keycloak initialization failed.');
       setLoading(false);
     });
   }, []);
 
   const login = () => keycloak.login();
 
+  let state, title, body;
   if (loading) {
-    return (
-      <div className="app-container" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <div className="loader-box">
-          <Loader2 className="spinner" size={40} />
-          <p className="body-medium">Initializing...</p>
-        </div>
-      </div>
+    state = 'waiting';
+    title = 'Checking session';
+    body = (
+      <section className="panel" aria-busy="true">
+        <p>Looking for an existing SSO session on realm <code>{env.VITE_KEYCLOAK_REALM || 'unset'}</code>.</p>
+        <progress aria-label="Checking SSO session" />
+      </section>
     );
-  }
-
-  if (error) {
-    return (
-      <div className="app-container" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <div className="error-box">
-          <AlertCircle className="error-icon" size={40} />
-          <h2 style={{ marginBottom: '0.5rem', fontSize: '1.125rem', fontWeight: 600 }}>Initialization Error</h2>
-          <p className="body-medium">{error}</p>
-          <p className="body-medium" style={{ marginTop: '1rem' }}>
-            Make sure <code style={{ padding: '0.1em 0.4em', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', fontSize: '0.8125rem' }}>src/keycloak.js</code> is configured with valid Keycloak settings.
-          </p>
-        </div>
-      </div>
+  } else if (error) {
+    state = 'error';
+    title = 'Keycloak error';
+    body = (
+      <section className="panel" role="alert">
+        <p className="error-message">{error}</p>
+        <p>
+          Check <code>VITE_KEYCLOAK_URL</code>, <code>VITE_KEYCLOAK_REALM</code> and{' '}
+          <code>VITE_KEYCLOAK_CLIENT_ID</code> in <code>.env</code>, then reload.
+        </p>
+        <ConfigList />
+      </section>
+    );
+  } else if (authenticated) {
+    state = 'ok';
+    title = 'Signed in';
+    body = <UserProfile keycloak={keycloak} />;
+  } else {
+    state = 'waiting';
+    title = 'Signed out';
+    body = (
+      <section className="panel">
+        <p>Test page for Keycloak SSO login.</p>
+        <button className="btn btn-primary" onClick={login}>Sign in with Keycloak</button>
+      </section>
     );
   }
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <div className="logo-section">
-          <span>/auth</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {!authenticated && (
-            <button className="btn btn-primary" onClick={login}>
-              Login
-            </button>
-          )}
-        </div>
-      </header>
-
+    <div className="page" data-state={state}>
+      <header className="app-header">Keycloak SSO test</header>
       <main className="app-main">
-        {authenticated ? (
-          <UserProfile keycloak={keycloak} />
-        ) : (
-          <>
-            <h1 className="title-hero">Secure access.<br />Zero generic slop.</h1>
-            <p className="subtitle-hero">
-              A cinematic authentication gateway. Clean UI, real credentials, no hardcoded values.
-            </p>
-            <button className="btn btn-primary" onClick={login} style={{ margin: '0 auto' }}>
-              Sign in with Keycloak
-            </button>
-          </>
-        )}
+        <h1 className="state-word">{title}</h1>
+        {body}
       </main>
-
-      <footer className="app-footer">
-        <p>antislop auth is a gateway, not magic. A beautiful UI is DESIGN.md's job, and yours.</p>
-      </footer>
     </div>
+  );
+}
+
+function ConfigList() {
+  return (
+    <dl className="kv">
+      {config.map(([label, value]) => (
+        <div key={label}>
+          <dt>{label}</dt>
+          <dd>{value || <span className="missing">not set</span>}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 

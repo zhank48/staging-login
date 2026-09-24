@@ -1,71 +1,35 @@
-import React from 'react';
-import { User, Mail, ShieldCheck, LogOut } from 'lucide-react';
-
 const UserProfile = ({ keycloak }) => {
-  const {
-    name,
-    given_name,
-    family_name,
-    preferred_username,
-    email
-  } = keycloak.tokenParsed || {};
+  const token = keycloak.tokenParsed || {};
+  const fullName = [token.given_name, token.family_name].filter(Boolean).join(' ');
 
-  const handleLogout = () => keycloak.logout();
-
-  const displayName = name || preferred_username || 'User';
-  const fullName = [given_name, family_name].filter(Boolean).join(' ') || '—';
+  const claims = [
+    ['Username', token.preferred_username],
+    ['Full name', fullName],
+    ['Email', token.email],
+    ['Subject', token.sub],
+    ['Expires', token.exp && new Date(token.exp * 1000).toLocaleString()],
+  ];
 
   return (
-    <div className="profile-card">
-      <div className="profile-header">
-        <div className="avatar">
-          <ShieldCheck size={24} />
-        </div>
-        <div className="profile-header-text">
-          <h2>{displayName}</h2>
-          <p className="label-caps">Session active</p>
-        </div>
-      </div>
+    <section className="panel">
+      <h2>{token.name || token.preferred_username || 'Unnamed user'}</h2>
 
-      <div className="profile-details">
-        <div className="list-item">
-          <div className="list-item-icon">
-            <User size={16} />
+      <dl className="kv">
+        {claims.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value || <span className="missing">not in token</span>}</dd>
           </div>
-          <div className="list-item-text">
-            <span className="list-item-supporting">Username</span>
-            <span className="list-item-label">{preferred_username || '—'}</span>
-          </div>
-        </div>
+        ))}
+      </dl>
 
-        <div className="list-item">
-          <div className="list-item-icon">
-            <User size={16} />
-          </div>
-          <div className="list-item-text">
-            <span className="list-item-supporting">Full Name</span>
-            <span className="list-item-label">{fullName}</span>
-          </div>
-        </div>
+      <details>
+        <summary>Full token payload</summary>
+        <pre>{JSON.stringify(token, null, 2)}</pre>
+      </details>
 
-        <div className="list-item">
-          <div className="list-item-icon">
-            <Mail size={16} />
-          </div>
-          <div className="list-item-text">
-            <span className="list-item-supporting">Email</span>
-            <span className="list-item-label">{email || '—'}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="profile-actions">
-        <button className="btn btn-logout" onClick={handleLogout}>
-          <LogOut size={14} />
-          Logout
-        </button>
-      </div>
-    </div>
+      <button className="btn" onClick={() => keycloak.logout()}>Sign out</button>
+    </section>
   );
 };
 

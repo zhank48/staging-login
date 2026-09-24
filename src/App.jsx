@@ -21,7 +21,9 @@ function App() {
 
     keycloak.init({
       onLoad: 'check-sso',
-      silentCheckSsoRedirectUri: window.location.origin + import.meta.env.BASE_URL + 'silent-check-sso.html',
+      // No iframes: Keycloak is on another domain, so iframe checks need 3rd-party cookies,
+      // which browsers block. check-sso falls back to a top-level redirect with prompt=none.
+      checkLoginIframe: false,
       pkceMethod: 'S256',
     })
     .then((auth) => {
@@ -54,8 +56,7 @@ function App() {
       <section className="panel" role="alert">
         <p className="error-message">{error}</p>
         <p>
-          Check <code>VITE_KEYCLOAK_URL</code>, <code>VITE_KEYCLOAK_REALM</code> and{' '}
-          <code>VITE_KEYCLOAK_CLIENT_ID</code> in <code>.env</code>, then reload.
+          Check the values below and the client's redirect URIs in Keycloak, then reload.
         </p>
         <ConfigList />
       </section>
